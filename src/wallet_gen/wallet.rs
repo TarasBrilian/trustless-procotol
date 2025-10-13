@@ -4,16 +4,15 @@ use web3::types::Address;
 use rand::thread_rng;
 use anyhow::Result;
 use super::secure_storage;
-use super::zk_ownership;
+use crate::zk::zk_ownership::{OwnershipCircuit, generate_ownership_proof_and_verify};
 
 pub fn generate_and_store_wallet() -> Result<PublicKey> {
     let secp = secp256k1::Secp256k1::new();
     let mut rng = thread_rng();
     let (sk, pk) = secp.generate_keypair(&mut rng);
-    
-    // Store private key securely in macOS Keychain
+
     secure_storage::store_private_key(&sk.secret_bytes())?;
-    
+
     println!("Private key stored securely in macOS Keychain");
     
     Ok(pk)
@@ -25,18 +24,33 @@ pub fn export_private_key_with_zk_proof() -> Result<Vec<u8>> {
     let private_key_bytes = secure_storage::retrieve_private_key()?;
     let private_key = SecretKey::from_slice(&private_key_bytes)
         .map_err(|e| anyhow::anyhow!("Invalid private key: {}", e))?;
-    
+
     // Generate corresponding public key
     let secp = Secp256k1::new();
     let public_key = private_key.public_key(&secp);
 
-    // Create ZK proof that we own the private key
-    let proof_valid = zk_ownership::create_ownership_proof(&private_key, &public_key)?;
+    // Create circuit for ZK proof
+    let sk_bytes = private_key.secret_bytes();
+    let pk_bytes = public_key.serialize_uncompressed();
     
+    use ark_bls12_381::Fr;
+    use ark_ff::PrimeField;
+    
+    let sk_fr = Fr::from_le_bytes_mod_order(&sk_bytes);
+    let pk_hash = Fr::from_le_bytes_mod_order(&pk_bytes[0..32]);
+    
+    let circuit = OwnershipCircuit {
+        private_key: Some(sk_fr),
+        public_key_hash: Some(pk_hash),
+    };
+
+    // Generate and verify ZK proof
+    let proof_valid = generate_ownership_proof_and_verify(circuit)?;
+
     if !proof_valid {
         return Err(anyhow::anyhow!("ZK proof verification failed - access denied"));
     }
-    
+
     Ok(private_key_bytes)
 }
 

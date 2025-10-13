@@ -21,4 +21,3 @@ pub fn delete_private_key() -> Result<()> {
         .context("Failed to delete private key from Keychain")?;
     Ok(())
 }
-
