@@ -1,5 +1,4 @@
-**Note**: THE CODE CAN ONLY RUN ON MAC OS 
-**Note**: This is a prototype implementation for educational and research purposes. For production use, additional security audits and testing are required. 
+**Note**: THE CODE CAN ONLY RUN ON MAC OS and this is a prototype implementation for educational and research purposes not for production use.
 
 # ZK-Wallet: Zero-Knowledge Cryptocurrency Wallet
 
@@ -88,7 +87,7 @@ src/
 
 ### Installation
 ```bash
-git clone <repository-url>
+git clone https://github.com/TarasBrilian/zk-wallet.git
 cd zk-signing
 cargo build
 ```

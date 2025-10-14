@@ -189,6 +189,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "ark-poly-commit"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5a741492629ffcd228337676dc223a28551aa6792eedb8a2a22c767f00df6c89"
+dependencies = [
+ "ark-crypto-primitives",
+ "ark-ec",
+ "ark-ff",
+ "ark-poly",
+ "ark-relations",
+ "ark-serialize",
+ "ark-std",
+ "derivative",
+ "digest 0.10.7",
+ "rayon",
+]
+
+[[package]]
 name = "ark-r1cs-std"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4940,6 +4958,8 @@ dependencies = [
  "ark-ec",
  "ark-ff",
  "ark-groth16",
+ "ark-poly",
+ "ark-poly-commit",
  "ark-r1cs-std",
  "ark-relations",
  "ark-serialize",

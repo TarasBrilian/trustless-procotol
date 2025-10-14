@@ -25,11 +25,9 @@ pub fn export_private_key_with_zk_proof() -> Result<Vec<u8>> {
     let private_key = SecretKey::from_slice(&private_key_bytes)
         .map_err(|e| anyhow::anyhow!("Invalid private key: {}", e))?;
 
-    // Generate corresponding public key
     let secp = Secp256k1::new();
     let public_key = private_key.public_key(&secp);
 
-    // Create circuit for ZK proof
     let sk_bytes = private_key.secret_bytes();
     let pk_bytes = public_key.serialize_uncompressed();
     
@@ -44,7 +42,6 @@ pub fn export_private_key_with_zk_proof() -> Result<Vec<u8>> {
         public_key_hash: Some(pk_hash),
     };
 
-    // Generate and verify ZK proof
     let proof_valid = generate_ownership_proof_and_verify(circuit)?;
 
     if !proof_valid {
