@@ -1,6 +1,6 @@
 **Note**: THE CODE CAN ONLY RUN ON MAC OS and this is a prototype implementation for educational and research purposes not for production use.
 
-# Trustless Protocol: Decentralized TSS Network with Ephemeral DKG
+# Trustless Protocol: Decentralized Wallet Network with Ephemeral DKG
 
 A revolutionary decentralized node system featuring **Zero-Knowledge Proofs**, **macOS Secure Enclave integration**, **Ephemeral Distributed Key Generation (DKG)**, and **Permissionless TSS Network** for maximum security and privacy. This system creates a network of nodes that can independently validate proofs, participate in threshold signing, and generate unique ephemeral keys for each transaction that are destroyed immediately after use.
 
