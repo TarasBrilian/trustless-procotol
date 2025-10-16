@@ -3,7 +3,7 @@ use tiny_keccak::{Hasher, Keccak};
 use web3::types::Address;
 use rand::thread_rng;
 use anyhow::Result;
-use super::secure_storage;
+use crate::storage::secure_storage;
 use crate::zk::zk_ownership::{OwnershipCircuit, generate_ownership_proof_and_verify};
 
 pub fn generate_and_store_wallet() -> Result<PublicKey> {

@@ -6,7 +6,7 @@ use ark_r1cs_std::{
 };
 use ark_relations::r1cs::{ConstraintSynthesizer, ConstraintSystemRef, SynthesisError};
 use ark_ff::PrimeField;
-use ark_groth16::{Groth16, Proof, VerifyingKey};
+use ark_groth16::Groth16;
 use ark_snark::SNARK;
 use rand::thread_rng;
 use secp256k1::{SecretKey, PublicKey};

@@ -8,7 +8,6 @@ use std::collections::HashMap;
 use anyhow::Result;
 use hex;
 
-/// Represents a polynomial share in the DKG protocol
 #[derive(Debug, Clone)]
 pub struct PolynomialShare {
     pub node_id: usize,
@@ -16,7 +15,6 @@ pub struct PolynomialShare {
     pub public_commitment: G1Projective,
 }
 
-/// Represents a complete DKG session for a transaction
 #[derive(Debug, Clone)]
 pub struct DkgSession {
     pub session_id: String,
@@ -27,7 +25,6 @@ pub struct DkgSession {
     pub is_completed: bool,
 }
 
-/// Represents a partial signature from a node
 #[derive(Debug, Clone)]
 pub struct PartialSignature {
     pub node_id: usize,
@@ -35,7 +32,6 @@ pub struct PartialSignature {
     pub public_commitment: G1Projective,
 }
 
-/// Represents the final aggregated signature
 #[derive(Debug, Clone)]
 pub struct AggregatedSignature {
     pub signature: Fr,
@@ -54,14 +50,12 @@ impl DkgSession {
         }
     }
 
-    /// Generate a random polynomial of degree (threshold - 1)
     pub fn generate_polynomial(&self, node_id: usize) -> Result<DensePolynomial<Fr>> {
         println!("Node {} generating random polynomial of degree {}", node_id, self.threshold - 1);
         
         let mut rng = thread_rng();
         let mut coeffs = Vec::new();
         
-        // Generate random coefficients for polynomial f(x) = a₀ + a₁x + a₂x² + ... + aₜ₋₁x^(t-1)
         for i in 0..self.threshold {
             let coeff = Fr::rand(&mut rng);
             coeffs.push(coeff);
@@ -76,7 +70,6 @@ impl DkgSession {
         Ok(polynomial)
     }
 
-    /// Evaluate polynomial at specific points to generate shares
     pub fn generate_shares(&self, node_id: usize, polynomial: &DensePolynomial<Fr>) -> Result<Vec<PolynomialShare>> {
         println!("Node {} generating shares for all nodes", node_id);
         
@@ -104,7 +97,6 @@ impl DkgSession {
         Ok(shares)
     }
 
-    /// Add polynomial shares from a node to the session
     pub fn add_node_shares(&mut self, node_id: usize, shares: Vec<PolynomialShare>) -> Result<()> {
         println!("Adding shares from node {} to DKG session", node_id);
         
@@ -116,15 +108,13 @@ impl DkgSession {
         Ok(())
     }
 
-    /// Compute the global public key from all polynomial shares
     pub fn compute_global_public_key(&mut self) -> Result<G1Projective> {
         println!("Computing global public key from {} shares", self.polynomial_shares.len());
         
         if self.polynomial_shares.len() < self.total_nodes {
             return Err(anyhow::anyhow!("Not enough shares to compute global public key"));
         }
-        
-        // Sum all the public commitments to get the global public key
+
         let mut global_pk = G1Projective::zero();
         
         for (node_id, share) in &self.polynomial_shares {
@@ -147,17 +137,14 @@ impl DkgSession {
         Ok(global_pk)
     }
 
-    /// Generate a partial signature using a node's share
     pub fn generate_partial_signature(&self, node_id: usize, message: &[u8]) -> Result<PartialSignature> {
         println!("Node {} generating partial signature", node_id);
         
         let share = self.polynomial_shares.get(&node_id)
             .ok_or_else(|| anyhow::anyhow!("No share found for node {}", node_id))?;
-        
-        // Hash the message to a field element
+
         let message_hash = self.hash_message_to_field(message);
         
-        // Generate partial signature: s_i = share_value * message_hash
         let signature_share = share.share_value * message_hash;
         
         let partial_sig = PartialSignature {
@@ -175,7 +162,6 @@ impl DkgSession {
         Ok(partial_sig)
     }
 
-    /// Aggregate partial signatures using Lagrange interpolation
     pub fn aggregate_signatures(&self, partial_sigs: &[PartialSignature], message: &[u8]) -> Result<AggregatedSignature> {
         println!("Aggregating {} partial signatures", partial_sigs.len());
         
@@ -183,17 +169,14 @@ impl DkgSession {
             return Err(anyhow::anyhow!("Not enough partial signatures for threshold"));
         }
         
-        // Compute Lagrange coefficients
         let mut aggregated_signature = Fr::zero();
         let mut global_pk = G1Projective::zero();
         
         for (i, partial_sig) in partial_sigs.iter().enumerate() {
             let lagrange_coeff = self.compute_lagrange_coefficient(partial_sig.node_id, &partial_sigs);
             
-            // Add weighted signature share
             aggregated_signature += lagrange_coeff * partial_sig.signature_share;
             
-            // Add weighted public commitment
             global_pk += partial_sig.public_commitment * lagrange_coeff;
             
             let mut lagrange_bytes = Vec::new();
@@ -216,7 +199,6 @@ impl DkgSession {
         Ok(result)
     }
 
-    /// Compute Lagrange coefficient for interpolation
     fn compute_lagrange_coefficient(&self, node_id: usize, partial_sigs: &[PartialSignature]) -> Fr {
         let mut numerator = Fr::one();
         let mut denominator = Fr::one();
@@ -234,9 +216,7 @@ impl DkgSession {
         numerator / denominator
     }
 
-    /// Hash message to field element
     fn hash_message_to_field(&self, message: &[u8]) -> Fr {
-        // Simple hash function - in practice, use proper cryptographic hash
         let mut hash_bytes = [0u8; 32];
         for (i, byte) in message.iter().enumerate() {
             hash_bytes[i % 32] = hash_bytes[i % 32].wrapping_add(*byte);
@@ -245,13 +225,11 @@ impl DkgSession {
         Fr::from_le_bytes_mod_order(&hash_bytes)
     }
 
-    /// Securely destroy all shares in memory
     pub fn destroy_shares(&mut self) {
         println!("Destroying all shares for session: {}", self.session_id);
         
         for (node_id, share) in &mut self.polynomial_shares {
             println!("  Destroying share for node {}", node_id);
-            // Securely zero out the share value
             share.share_value = Fr::zero();
             share.public_commitment = G1Projective::zero();
         }
@@ -264,7 +242,6 @@ impl DkgSession {
     }
 }
 
-/// Run a complete DKG simulation with 5 nodes and threshold 3
 pub fn simulate_dkg_session(session_id: String) -> Result<DkgSession> {
     println!("=== STARTING EPHEMERAL DKG SIMULATION ===");
     println!("Session ID: {}", session_id);
@@ -275,17 +252,13 @@ pub fn simulate_dkg_session(session_id: String) -> Result<DkgSession> {
     for node_id in 1..=5 {
         println!("\n--- Node {} Phase ---", node_id);
         
-        // Generate polynomial
         let polynomial = dkg_session.generate_polynomial(node_id)?;
         
-        // Generate shares for all nodes
         let shares = dkg_session.generate_shares(node_id, &polynomial)?;
         
-        // Add shares to session
         dkg_session.add_node_shares(node_id, shares)?;
     }
     
-    // Compute global public key
     let global_pk = dkg_session.compute_global_public_key()?;
     
     let mut global_pk_bytes = Vec::new();
@@ -296,7 +269,6 @@ pub fn simulate_dkg_session(session_id: String) -> Result<DkgSession> {
     Ok(dkg_session)
 }
 
-/// Simulate threshold signing with ephemeral keys
 pub fn simulate_threshold_signing(dkg_session: &mut DkgSession, message: &[u8]) -> Result<AggregatedSignature> {
     println!("\n=== SIMULATING THRESHOLD SIGNING ===");
     println!("Message: 0x{}", hex::encode(message));
@@ -310,7 +282,6 @@ pub fn simulate_threshold_signing(dkg_session: &mut DkgSession, message: &[u8]) 
         partial_sigs.push(partial_sig);
     }
     
-    // Aggregate signatures
     let aggregated_sig = dkg_session.aggregate_signatures(&partial_sigs, message)?;
     
     println!("Threshold signing completed successfully!");

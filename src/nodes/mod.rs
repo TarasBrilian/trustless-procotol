@@ -1,10 +1,9 @@
-pub mod nodes;
+pub mod node;
 
-pub use nodes::{
-    NodeManager, NodeInfo, NodeStatus, EphemeralKeyShare, 
+pub use node::{
+    NodeRuntime, NodeInfo, NodeHealth, NodeStatus, 
+    TransactionRequest, TransactionResult, TransactionSession, TransactionStatus,
     ProofValidationRequest, ProofValidationResponse,
-    TransactionRequest, TransactionVote, TransactionResult,
-    TransactionKeyShare, TransactionSession, TransactionStatus,
-    NetworkCoordinator,
-    create_test_node, distribute_ephemeral_shares_to_nodes
+    EphemeralKeyShare, TransactionVote,
+    SharedRuntime, create_test_node, create_shared_runtime
 };
