@@ -18,6 +18,11 @@ pub fn generate_and_store_wallet() -> Result<PublicKey> {
     Ok(pk)
 }
 
+pub fn import_private_key(private_key: &[u8]) -> Result<()> {
+    secure_storage::store_private_key(private_key)?;
+    Ok(())
+}
+
 pub fn export_private_key_with_zk_proof() -> Result<Vec<u8>> {
     println!("ZK verification for private key export");
 

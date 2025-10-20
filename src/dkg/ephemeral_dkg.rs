@@ -243,13 +243,18 @@ impl DkgSession {
 }
 
 pub fn simulate_dkg_session(session_id: String) -> Result<DkgSession> {
+    // Default to 8 nodes for competitive validation system
+    simulate_dkg_session_with_params(session_id, 8, 3)
+}
+
+pub fn simulate_dkg_session_with_params(session_id: String, total_nodes: usize, threshold: usize) -> Result<DkgSession> {
     println!("=== STARTING EPHEMERAL DKG SIMULATION ===");
     println!("Session ID: {}", session_id);
-    println!("Nodes: 5, Threshold: 3");
+    println!("Nodes: {}, Threshold: {}", total_nodes, threshold);
     
-    let mut dkg_session = DkgSession::new(session_id, 3, 5);
+    let mut dkg_session = DkgSession::new(session_id, threshold, total_nodes);
     
-    for node_id in 1..=5 {
+    for node_id in 1..=total_nodes {
         println!("\n--- Node {} Phase ---", node_id);
         
         let polynomial = dkg_session.generate_polynomial(node_id)?;
