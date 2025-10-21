@@ -134,7 +134,7 @@ cargo build
 #### 2. Test the Complete Transaction Flow
 ```bash
 # Test the full DKG-based transaction flow
-./test_transaction.sh
+cargo run
 ```
 
 #### API Response Examples
